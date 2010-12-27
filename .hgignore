@@ -1,0 +1,12 @@
+syntax: glob
+*~
+*.swp
+*.dblite
+*.bak
+*.pyc
+doc/_build*
+archive/images
+*.jpeg
+*.ps
+*.png
+
