@@ -1,6 +1,6 @@
 import Numeric, Experts, MLab, random
 from miscFunctions import *
-from scipy import gplt
+import matplotlib.pyplot as gplt
 
 #psyco.full()
 
@@ -16,18 +16,18 @@ scalarResultMatrix = Numeric.zeros([noOfExperiments,totalTime],Numeric.Float)
 for i in range(noOfExperiments):
     
     experiment=str(i)
-    reportFile = "C:\Documents and Settings\Matthew Henderson\My Documents\work\pythonwork\experts\\reports\\report"+experiment+".html"
+    reportFile = "report.html"
     A = Experts.VectorExpertsProblem(vectorLength,noOfExperts,totalTime,1,1,1,1)
-    result = A.scalarMixture(beta)
-    A.makeHTMLReport(reportFile)
-    scalarResult = result[0]
-    vectorResult = result[1]
-    vectorResultMatrix[i,:] = vectorResult
-    scalarResultMatrix[i,:] = scalarResult
+#    result = A.scalarMixture(beta)
+#    A.makeHTMLReport(reportFile)
+#    scalarResult = result[0]
+#    vectorResult = result[1]
+#    vectorResultMatrix[i,:] = vectorResult
+#    scalarResultMatrix[i,:] = scalarResult
 
 x = range(totalTime)
 
-vectorAverage = sum(vectorResultMatrix)/noOfExperiments
-scalarAverage = sum(scalarResultMatrix)/noOfExperiments
-
-a = gplt.plot(x,vectorAverage,x,scalarAverage)
+#vectorAverage = sum(vectorResultMatrix)/noOfExperiments
+#scalarAverage = sum(scalarResultMatrix)/noOfExperiments
+#
+#a = gplt.plot(x,vectorAverage,x,scalarAverage)

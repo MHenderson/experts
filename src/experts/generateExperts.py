@@ -1,6 +1,6 @@
 import Experts, Numeric, MLab, random
 from miscFunctions import *
-from scipy import gplt
+#from scipy import gplt
 
 vectorLength = 7
 noOfExperts = 4      
@@ -67,7 +67,7 @@ for m in range(len(dataPoints)):
             B = Experts.VectorExpertsProblem(vectorLength,totalNoOfExperts,totalTime,newPredictionMatrix,A.outcomeMatrix,0,0)
            
             result = B.scalarMixture(0.1)
-            B.makeHTMLReport("C:\Documents and Settings\Matthew Henderson\My Documents\work\pythonwork\experts\\reports\\report.html")
+            B.makeHTMLReport("report.html")
             scalarResult = result[0]
             vectorResult = result[1]
             vectorResultMatrix[i,:] = vectorResult
