@@ -146,23 +146,11 @@ class VectorExpertsProblem(ExpertsProblem):
 
 class ScalarExpertsProblem(ExpertsProblem):
 
-    def __init__(self,noOfExperts,totalTime,expertsPredictionMatrix=1,outcomeVector=1,outcomeAsExpert=0,addNoise=0):
+    def __init__(self,noOfExperts, totalTime, expertsPredictionMatrix, outcomeVector, outcomeAsExpert = 0, addNoise = 0):
         self.noOfExperts = noOfExperts
         self.totalTime = totalTime
-        # if the experts predictions are just an int
-        # use random experts
-        # otherwise, intialise the prediction matrix
-        if type(expertsPredictionMatrix)==int:
-            self.expertsPredictionMatrix = np.random.rand(totalTime,self.noOfExperts)
-        else:
-            self.expertsPredictionMatrix = expertsPredictionMatrix
-        
-        # if outcomes are not specified then randomize them
-        # otherwise intialise outcomes
-        if type(outcomeVector)==int:
-            self.outcomeVector = np.floor(2*np.random.rand(totalTime))
-        else:
-            self.outcomeVector = outcomeVector
+        self.expertsPredictionMatrix = expertsPredictionMatrix
+        self.outcomeVector = outcomeVector
 
         # optionally add the outcomes as an expert
         if outcomeAsExpert==1:

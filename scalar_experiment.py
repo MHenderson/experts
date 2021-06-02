@@ -4,18 +4,23 @@ import experts
 from experts import problems
 from experts.problems import ScalarExpertsProblem
 
-import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 
 # %%
 n_experts = 10
 t_time = 100
 beta = 0.01
 
+experts_ = np.random.rand(t_time, n_experts)
+outcomes = np.floor(2*np.random.rand(t_time))
+
 # This is probably what you would expect
 # when the experts and the outcome
 # are all random sequences
 # %%
-A = ScalarExpertsProblem(n_experts, t_time)
+A = ScalarExpertsProblem(n_experts, t_time, experts_, outcomes)
 result = A.mixture(beta)
 
 # %%
@@ -33,7 +38,7 @@ sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
 # quickly follows the predictions
 # of that leading expert
 # %%
-A = ScalarExpertsProblem(n_experts, t_time, outcomeAsExpert=1)
+A = ScalarExpertsProblem(n_experts, t_time,  experts_, outcomes, outcomeAsExpert=1, addNoise=1)
 result = A.mixture(beta)
 
 # %%
