@@ -19,12 +19,12 @@ A = ScalarExpertsProblem(n_experts, t_time)
 result = A.mixture(beta)
 
 # %%
-plt.plot(result[0])
-plt.show()
+df = pd.DataFrame(dict(time = np.arange(100), loss = result[0]))
+sns.relplot(x = "time", y = "loss", kind = "line", data = df)
 
 # %%
-plt.plot(result[1])
-plt.show()
+df = pd.DataFrame(dict(time = np.arange(100), total_loss = result[1]))
+sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
 
 # On the other hand,
 # when the outcome sequence
@@ -32,16 +32,16 @@ plt.show()
 # the learning algorithm
 # quickly follows the predictions
 # of that leading expert
-
 # %%
 A = ScalarExpertsProblem(n_experts, t_time, outcomeAsExpert=1)
 result = A.mixture(beta)
 
 # %%
-plt.plot(result[0])
-plt.show()
+df = pd.DataFrame(dict(time = np.arange(100), loss = result[0]))
+sns.relplot(x = "time", y = "loss", kind = "line", data = df)
 
 # %%
-plt.plot(result[1])
-plt.show()
+df = pd.DataFrame(dict(time = np.arange(100), total_loss = result[1]))
+sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
+
 # %%
