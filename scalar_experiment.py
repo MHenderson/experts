@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+import random
+
 # %%
 n_experts = 10
 t_time = 100
@@ -24,11 +26,11 @@ A = ScalarExpertsProblem(n_experts, t_time, experts_, outcomes)
 result = A.mixture(beta)
 
 # %%
-df = pd.DataFrame(dict(time = np.arange(100), loss = result[0]))
+df = pd.DataFrame(dict(time = np.arange(100), loss = result["loss"]))
 sns.relplot(x = "time", y = "loss", kind = "line", data = df)
 
 # %%
-df = pd.DataFrame(dict(time = np.arange(100), total_loss = result[1]))
+df = pd.DataFrame(dict(time = np.arange(100), total_loss = result["loss"].cumsum()))
 sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
 
 # On the other hand,
@@ -38,15 +40,25 @@ sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
 # quickly follows the predictions
 # of that leading expert
 # %%
-A = ScalarExpertsProblem(n_experts, t_time,  experts_, outcomes, outcomeAsExpert=1, addNoise=1)
+
+# add outcomes as one of the experts
+experts_[:, n_experts - 1] = outcomes
+
+# with some gaussian noise (should do this first?)
+for t in range(t_time):
+  a = random.gauss(0, 0.01)
+  if 0 <= a + experts_[t, n_experts - 1] <= 1:
+    experts_[t, n_experts - 1] = a + experts_[t, n_experts - 1]
+
+A = ScalarExpertsProblem(n_experts, t_time,  experts_, outcomes)
 result = A.mixture(beta)
 
 # %%
-df = pd.DataFrame(dict(time = np.arange(100), loss = result[0]))
+df = pd.DataFrame(dict(time = np.arange(100), loss = result["loss"]))
 sns.relplot(x = "time", y = "loss", kind = "line", data = df)
 
 # %%
-df = pd.DataFrame(dict(time = np.arange(100), total_loss = result[1]))
+df = pd.DataFrame(dict(time = np.arange(100), total_loss = result["loss"].cumsum()))
 sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
 
 # %%
