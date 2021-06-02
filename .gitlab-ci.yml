@@ -4,4 +4,5 @@ test:
   stage: test
   script:
   - pip install pytest
+  - pip install numpy
   - python -m pytest -v
