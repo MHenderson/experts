@@ -146,26 +146,30 @@ class VectorExpertsProblem(ExpertsProblem):
 
 class ScalarExpertsProblem(ExpertsProblem):
 
-    def __init__(self,noOfExperts,totalTime,expertsPredictionMatrix=[],outcomeVector=[],outcomeAsExpert=0,addNoise=0,verbosity=0):
+    def __init__(self,noOfExperts,totalTime,expertsPredictionMatrix=1,outcomeVector=1,outcomeAsExpert=0,addNoise=0):
         self.noOfExperts = noOfExperts
         self.totalTime = totalTime
+        # if the experts predictions are just an int
+        # use random experts
+        # otherwise, intialise the prediction matrix
         if type(expertsPredictionMatrix)==int:
-            if verbosity>=3: print("Randomizing scalar experts...")
             self.expertsPredictionMatrix = np.random.rand(totalTime,self.noOfExperts)
         else:
-            if verbosity>=3: print("Using given scalar experts...")
             self.expertsPredictionMatrix = expertsPredictionMatrix
+        
+        # if outcomes are not specified then randomize them
+        # otherwise intialise outcomes
         if type(outcomeVector)==int:
-            if verbosity>=3: print("Randomizing scalar outcomes...")
             self.outcomeVector = np.floor(2*np.random.rand(totalTime))
         else:
-            if verbosity>=3: print("Using given scalar outcomes...")
             self.outcomeVector = outcomeVector
+
+        # optionally add the outcomes as an expert
         if outcomeAsExpert==1:
-            if verbosity>=3: print("Introducing scalar outcomes as scalar expert...")
             self.expertsPredictionMatrix[:,self.noOfExperts-1]=self.outcomeVector
+
+        # optionally add gaussian noise to the outcome-expert
         if addNoise==1:
-            if verbosity>=3: print("Adding noise to outcome-expert...")
             for t in range(totalTime):
                 a = random.gauss(0,0.01)
                 if 0<=a+self.expertsPredictionMatrix[t,self.noOfExperts-1]<=1:
