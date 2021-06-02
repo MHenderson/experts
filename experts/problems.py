@@ -4,7 +4,6 @@ import mlab
 
 import random
 ## import Gnuplot
-from miscFunctions import *
 
 class ExpertsProblem:
 
@@ -320,11 +319,3 @@ class ScalarExpertsProblem(ExpertsProblem):
             reportFile.writelines(': ')
             reportFile.writelines(str(self.expertsPredictionMatrix[:,i]))
             reportFile.writelines('<br>')
-
-       
-
-
-
-
-
-        
