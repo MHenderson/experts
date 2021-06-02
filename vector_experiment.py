@@ -10,5 +10,3 @@ A = experts.problems.VectorExpertsProblem(vectorLength, noOfExperts, totalTime, 
 beta = 0.1
 
 result = A.mixture(beta)
-
-A.makeHTMLReport()

@@ -1,5 +1,4 @@
 from experts.utils import twoNorm
-from experts.utils import array2HTML
 from experts.utils import accumulate
 
 import math
@@ -55,56 +54,6 @@ class VectorExpertsProblem(ExpertsProblem):
         if addNoise==1:
             if verbosity>=1: print("Adding noise to outcome-expert...")
             self.addNoise(self.noOfExperts-1,self.totalTime)
-
-    def makeHTMLReport(self,filename='report.html'):
-        #
-        # OPEN FILE & WRITE TITLE
-        #
-        reportFile = open(filename,mode='w+')
-        reportFile.writelines(['<h1>Vector Experts Experiment HTML Report</h1>'])
-        #
-        # OUTCOME IMAGE
-        #
-        #outcomesImg = imagesc(self.outcomeMatrix)
-        #outcomesImg.save("reportFiles/outcomes.png")
-        #reportFile.writelines(['<hr><h2>Outcomes</h2><img src="reportFiles/outcomes.png"></img><br>'])
-        #
-        # OUTCOME TABLE
-        #
-        reportFile.writelines(['<hr><h2>Outcomes</h2>'])
-        reportFile.writelines(array2HTML(np.transpose(self.outcomeMatrix),3,'rowtitle','coltitle','Outcome Matrix'))
-        #
-        # PREDICTION TABLE
-        #
-        reportFile.writelines(['<hr><h2>Predictions</h2>'])
-        reportFile.writelines(array2HTML(self.predictionMatrix,3,'rowtitle','coltitle','Vector Prediction Matrix'))
-        if type(self.scalarPredictionMatrix[0])==str:
-            reportFile.writelines(self.scalarPredictionMatrix[0])
-        else:
-            reportFile.writelines(array2HTML(self.scalarPredictionMatrix,3,'rowtitle','coltitle','Scalar Prediction Matrix'))
-        #
-        # CUMULATIVE LOSS TABLE
-        #
-        reportFile.writelines(['<hr><h2>Cumulative Loss (Vector Mixture)</h2>'])
-        reportFile.writelines(str(self.learnerCumulativeLossVector))
-        #
-        # CUMULATIVE LOSS TABLE
-        #
-        reportFile.writelines(['<hr><h2>Cumulative Loss (Componentwise Scalar Mixture)</h2>'])
-        reportFile.writelines(str(self.componentwiseCLV))
-        #
-        # EXPERTS IMAGE
-        #
-        #reportFile.writelines(['<hr><h2>Experts</h2><img src="reportFiles/experts.png"></img>'])
-        #
-        # EXPERTS TABLE
-        #
-        reportFile.writelines(['<hr><h2>Experts</h2>'])
-        for i in range(self.noOfExperts):
-            caption = 'Expert '+str(i)
-            reportFile.writelines(array2HTML(self.expertsPredictionMatrix[:,:,i],3,'rowtitle','coltitle',caption))
-            reportFile.writelines('<br>')
-
 
     def addNoise(self,expert,totalTime):
         
@@ -280,45 +229,3 @@ class ScalarExpertsProblem(ExpertsProblem):
         bestExpertLoss = np.min(expertsTotalLossVector)
         self.upperbound = (math.log(self.noOfExperts)-bestExpertLoss*math.log(beta))/(2*math.log(2/(1+beta)));
         return [self.learnerLossVector,self.learnerCumulativeLossVector,self.upperbound]
-
-    def makeHTMLReport(self,filename='report.html'):
-        #
-        # OPEN FILE & WRITE TITLE
-        #
-        reportFile = open(filename,mode='w+')
-        reportFile.writelines(['<h1>Scalar Experts Experiment HTML Report</h1>'])
-        #
-        # OUTCOME IMAGE
-        #
-        #outcomesImg = imagesc(self.outcomeMatrix)
-        #outcomesImg.save("reportFiles/outcomes.png")
-        #reportFile.writelines(['<hr><h2>Outcomes</h2><img src="reportFiles/outcomes.png"></img><br>'])
-        #
-        # OUTCOME TABLE
-        #
-        reportFile.writelines(['<hr><h2>Outcomes</h2>'])
-        reportFile.writelines(str(self.outcomeVector))
-        #
-        # PREDICTION TABLE
-        #
-        reportFile.writelines(['<hr><h2>Predictions</h2>'])
-        reportFile.writelines(str(self.predictionVector))
-        #
-        # CUMULATIVE LOSS TABLE
-        #
-        reportFile.writelines(['<hr><h2>Cumulative Loss</h2>'])
-        reportFile.writelines(str(self.learnerCumulativeLossVector))
-        #
-        # EXPERTS IMAGE
-        #
-        #reportFile.writelines(['<hr><h2>Experts</h2><img src="reportFiles/experts.png"></img>'])
-        #
-        # EXPERTS TABLE
-        #
-        reportFile.writelines(['<hr><h2>Experts</h2>'])
-        for i in range(self.noOfExperts):
-            reportFile.writelines('Expert ')
-            reportFile.write(str(i))
-            reportFile.writelines(': ')
-            reportFile.writelines(str(self.expertsPredictionMatrix[:,i]))
-            reportFile.writelines('<br>')

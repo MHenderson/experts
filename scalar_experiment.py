@@ -14,6 +14,3 @@ result = A.mixture(beta)[0]
 # Create plot and display it.
 plt.plot(result)
 plt.show()
-
-# Create HTML report
-A.makeHTMLReport()
