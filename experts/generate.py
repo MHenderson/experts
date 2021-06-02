@@ -1,6 +1,9 @@
-import Experts, Numeric, MLab, random
-from miscFunctions import *
-#from scipy import gplt
+import experts
+from experts import problems
+from experts.utils import digit
+
+import numpy as np
+import random
 
 vectorLength = 7
 noOfExperts = 4      
@@ -12,20 +15,19 @@ noOfItsPerDP = 4
 # should be <= noOfExperts**vectorLength(+1?)
 #
 dataPoints = range(0,51,1)
-differenceVector = Numeric.zeros(len(dataPoints),Numeric.Float)
+differenceVector = np.zeros(len(dataPoints))
 maximumNoOfPseudoExperts =  noOfExperts**vectorLength
 
-
 for m in range(len(dataPoints)):
-    print "dataPoint:",dataPoints[m]
+    print("dataPoint:",dataPoints[m])
     for n in range(noOfItsPerDP):
-        print "Iteration:",n
+        print("Iteration:",n)
        
         noOfPseudoExperts = dataPoints[m]
         totalNoOfExperts = noOfExperts+noOfPseudoExperts
 
-        vectorResultMatrix = Numeric.zeros([noOfExperiments,totalTime],Numeric.Float)
-        scalarResultMatrix = Numeric.zeros([noOfExperiments,totalTime],Numeric.Float)
+        vectorResultMatrix = np.zeros([noOfExperiments,totalTime])
+        scalarResultMatrix = np.zeros([noOfExperiments,totalTime])
 
         #
         # Add pseudoexperts
@@ -33,10 +35,10 @@ for m in range(len(dataPoints)):
 
         for i in range(noOfExperiments):
 
-            A = Experts.VectorExpertsProblem(vectorLength,noOfExperts,totalTime,1,1,1,0)
+            A = experts.problems.VectorExpertsProblem(vectorLength,noOfExperts,totalTime,1,1,1,0)
 
             oldPredictionMatrix = A.expertsPredictionMatrix
-            newPredictionMatrix = Numeric.zeros([totalTime,vectorLength,totalNoOfExperts],Numeric.Float)
+            newPredictionMatrix = np.zeros([totalTime,vectorLength,totalNoOfExperts])
 
             newPredictionMatrix[:,:,0:noOfExperts] = oldPredictionMatrix
 
@@ -44,7 +46,7 @@ for m in range(len(dataPoints)):
 
             for j in range(noOfExperts,totalNoOfExperts):              
 
-                newExpert = MLab.zeros([totalTime,vectorLength],Numeric.Float)
+                newExpert = np.zeros([totalTime,vectorLength])
                 X = [noOfExperts**k for k in range(vectorLength)]
                 X = sum(X)
                 X *= noOfExperts-1
@@ -64,7 +66,7 @@ for m in range(len(dataPoints)):
 
                 newPredictionMatrix[:,:,j] = newExpert[:,:]
 
-            B = Experts.VectorExpertsProblem(vectorLength,totalNoOfExperts,totalTime,newPredictionMatrix,A.outcomeMatrix,0,0)
+            B = experts.problems.VectorExpertsProblem(vectorLength,totalNoOfExperts,totalTime,newPredictionMatrix,A.outcomeMatrix,0,0)
            
             result = B.scalarMixture(0.1)
             B.makeHTMLReport("report.html")
@@ -86,5 +88,3 @@ for m in range(len(dataPoints)):
 differenceVector = differenceVector/noOfItsPerDP
 
 gplt.plot(differenceVector)
-
-
