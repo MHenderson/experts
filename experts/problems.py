@@ -146,24 +146,19 @@ class VectorExpertsProblem(ExpertsProblem):
 
 class ScalarExpertsProblem(ExpertsProblem):
 
-    def __init__(self,noOfExperts, totalTime, expertsPredictionMatrix, outcomeVector, outcomeAsExpert = 0, addNoise = 0):
+    def __init__(self, noOfExperts, totalTime, expertsPredictionMatrix, outcomeVector):
+
         self.noOfExperts = noOfExperts
         self.totalTime = totalTime
         self.expertsPredictionMatrix = expertsPredictionMatrix
         self.outcomeVector = outcomeVector
 
-        # optionally add the outcomes as an expert
-        if outcomeAsExpert==1:
-            self.expertsPredictionMatrix[:,self.noOfExperts-1]=self.outcomeVector
+    def predict(self, experts_, outcomes, weights, beta):
+        normalized_weights = weights/sum(weights)
+        r = sum(normalized_weights * experts_)
+        return(self.predictionFunction(r, beta))
 
-        # optionally add gaussian noise to the outcome-expert
-        if addNoise==1:
-            for t in range(totalTime):
-                a = random.gauss(0,0.01)
-                if 0<=a+self.expertsPredictionMatrix[t,self.noOfExperts-1]<=1:
-                    self.expertsPredictionMatrix[t,self.noOfExperts-1]=a+self.expertsPredictionMatrix[t,self.noOfExperts-1] 
-
-    def mixture(self,beta):
+    def mixture(self, beta):
 
         lossFunction = np.fabs
         expertsTotalLossVector = np.zeros(self.noOfExperts)
@@ -175,15 +170,15 @@ class ScalarExpertsProblem(ExpertsProblem):
         
         for t in range(self.totalTime):
             
-            # COMPUTE PREDICTION
-            expertsPredictionNowVector = self.expertsPredictionMatrix[t,:]
             outcomeNow = self.outcomeVector[t]
-            normalizedWeightVector = weightVector/sum(weightVector)
-            r = sum(normalizedWeightVector*expertsPredictionNowVector)
-            predictionNow = self.predictionFunction(r,beta)
+            expertsPredictionNowVector = self.expertsPredictionMatrix[t,:]
+            predictionNow = self.predict(expertsPredictionNowVector, outcomeNow, weightVector, beta)
+
+            # COMPUTE PREDICTION
             self.predictionVector[t] = predictionNow
             
             # CALCULATE LOSSES
+            # self.loss
             lossNow = lossFunction(predictionNow-outcomeNow)
             self.learnerLossVector[t] = lossNow
             totalLearnerLoss = totalLearnerLoss+lossFunction(predictionNow-outcomeNow)
@@ -192,6 +187,7 @@ class ScalarExpertsProblem(ExpertsProblem):
             expertsTotalLossVector = expertsTotalLossVector + expertsLossNowVector
             
             # UPDATE STEP
+            # self.update
             updateVector = self.updateFunction(expertsLossNowVector,beta)
             weightVector = weightVector*updateVector
             
