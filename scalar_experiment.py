@@ -1,16 +1,22 @@
+# %%
 import experts
 
 from experts import problems
+from experts.problems import ScalarExpertsProblem
 
 import matplotlib.pyplot as plt
 
-noOfExperts = 15
-totalTime = 17
-beta = 0.1
+# %%
+n_experts = 3
+t_time = 100
+beta = 0.2
 
-A = experts.problems.ScalarExpertsProblem(noOfExperts,totalTime,1,1,1,1,1)
+# %%
+A = ScalarExpertsProblem(n_experts, t_time, 1, 1, 1, 1, 1)
 result = A.mixture(beta)[0]
 
-# Create plot and display it.
+# %%
 plt.plot(result)
 plt.show()
+
+# %%
