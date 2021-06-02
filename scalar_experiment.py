@@ -33,18 +33,37 @@ A = ScalarExpertsProblem(n_experts, t_time, experts_, outcomes)
 result = A.mixture(beta)
 
 # %%
+expert_losses = np.sum(result["expert-loss"], axis = 0)
+best_expert_total_loss = np.min(expert_losses)
+best_expert_index = np.argmin(expert_losses)
+
+# %%
 df = pd.DataFrame(
     dict(
         time = np.arange(100),
-        loss = result["learner-loss"],
-        total_loss = result["learner-loss"].cumsum()
+        total_loss = result["learner-loss"],
+        best_expert_loss = result["expert-loss"][:, best_expert_index]
         )
     )
 
-sns.relplot(x = "time", y = "loss", kind = "line", data = df)
+df_long = pd.melt(df, ['time'])
 
 # %%
-sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
+sns.relplot(x = "time", y = "value", hue = "variable", kind = "line", data = df_long)
+
+# %%
+df_cum = pd.DataFrame(
+    dict(
+        time = np.arange(100),
+        total_loss = result["learner-loss"].cumsum(),
+        best_expert_loss = result["expert-loss"][:, best_expert_index].cumsum()
+        )
+    )
+
+df_cum_long = pd.melt(df, ['time'])
+
+# %%
+sns.relplot(x = "time", y = "value", hue = "variable", kind = "line", data = df_cum_long)
 
 # On the other hand,
 # when the outcome sequence
@@ -52,8 +71,8 @@ sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
 # the learning algorithm
 # quickly follows the predictions
 # of that leading expert
-# %%
 
+# %%
 # add outcomes as one of the experts
 experts_[:, n_experts - 1] = outcomes
 
@@ -63,21 +82,42 @@ for t in range(t_time):
   if 0 <= a + experts_[t, n_experts - 1] <= 1:
     experts_[t, n_experts - 1] = a + experts_[t, n_experts - 1]
 
+# %%
 A = ScalarExpertsProblem(n_experts, t_time,  experts_, outcomes)
 result = A.mixture(beta)
+
+# recalculate best expert
+# %%
+expert_losses = np.sum(result["expert-loss"], axis = 0)
+best_expert_total_loss = np.min(expert_losses)
+best_expert_index = np.argmin(expert_losses)
 
 # %%
 df = pd.DataFrame(
     dict(
         time = np.arange(100),
         loss = result["learner-loss"],
-        total_loss = result["learner-loss"].cumsum()
+        best_expert_loss = result["expert-loss"][:, best_expert_index]
     )
 )
 
-sns.relplot(x = "time", y = "loss", kind = "line", data = df)
+df_long = pd.melt(df, ['time'])
 
 # %%
-sns.relplot(x = "time", y = "total_loss", kind = "line", data = df)
+sns.relplot(x = "time", y = "value", hue = "variable", kind = "line", data = df_long)
+
+# %%
+df_cum = pd.DataFrame(
+    dict(
+        time = np.arange(100),
+        total_loss = result["learner-loss"].cumsum(),
+        best_expert_loss = result["expert-loss"][:, best_expert_index].cumsum()
+        )
+    )
+
+df_cum_long = pd.melt(df_cum, ['time'])
+
+# %%
+sns.relplot(x = "time", y = "value", hue = "variable", kind = "line", data = df_cum_long)
 
 # %%
