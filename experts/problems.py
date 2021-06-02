@@ -1,5 +1,6 @@
 from experts.utils import twoNorm
 from experts.utils import array2HTML
+from experts.utils import accumulate
 
 import math
 import numpy as np
@@ -191,21 +192,21 @@ class VectorExpertsProblem(ExpertsProblem):
             setOfExperts = []
             for expert in range(self.noOfExperts):
                 a = self.expertsPredictionMatrix[:,component,expert]
-                if a not in setOfExperts:
-                    setOfExperts.append(a)
-                    noOfComponentExperts = len(setOfExperts)
-                    componentExperts = np.zeros([self.totalTime,noOfComponentExperts])
-                for i in range(noOfComponentExperts):
-                    componentExperts[:,i] = setOfExperts[i]
+                #if a not in setOfExperts:
+                #    setOfExperts.append(a)
+                #    noOfComponentExperts = len(setOfExperts)
+                #    componentExperts = np.zeros([self.totalTime,noOfComponentExperts])
+                #for i in range(noOfComponentExperts):
+                #    componentExperts[:,i] = setOfExperts[i]
         
             # Originally I had the following line rather than the previous
             # nine; this allowed for repeated experts
             ##componentExperts = self.expertsPredictionMatrix[:,component,:]
             componentOutcomes = self.outcomeMatrix[component,:]
-            B = ScalarExpertsProblem(noOfComponentExperts,self.totalTime,componentExperts,componentOutcomes,0,0,verbosity)
-            componentResult = B.mixture(beta)
-            self.scalarPredictionMatrix[:,component] = B.predictionVector[:]
-            mixedLossMatrix[component,:] = componentResult[0]       
+            #B = ScalarExpertsProblem(noOfComponentExperts,self.totalTime,componentExperts,componentOutcomes,0,0,verbosity)
+            #componentResult = B.mixture(beta)
+            #self.scalarPredictionMatrix[:,component] = B.predictionVector[:]
+            #mixedLossMatrix[component,:] = componentResult[0]       
          
         self.componentwiseCLV = np.sqrt((sum(mixedLossMatrix**2))/self.vectorLength)    
 ##        self.componentwiseCLV = Numeric.sqrt((sum(Numeric.absolute(mixedLossMatrix)))/self.vectorLength)    
