@@ -1,4 +1,7 @@
-import Numeric, Experts, MLab, random
+import Experts
+import random
+import numpy as np
+
 from miscFunctions import *
 import matplotlib.pyplot as gplt
 
@@ -10,8 +13,8 @@ totalTime = 6
 beta = 0.1
 noOfExperiments = 3
 
-vectorResultMatrix = Numeric.zeros([noOfExperiments,totalTime],Numeric.Float)
-scalarResultMatrix = Numeric.zeros([noOfExperiments,totalTime],Numeric.Float)
+vectorResultMatrix = np.zeros([noOfExperiments,totalTime])
+scalarResultMatrix = np.zeros([noOfExperiments,totalTime])
 
 for i in range(noOfExperiments):
     

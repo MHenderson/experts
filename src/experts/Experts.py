@@ -1,12 +1,16 @@
-import Numeric, MLab, random
+import math
+import numpy as np
+import mlab
+
+import random
 ## import Gnuplot
 from miscFunctions import *
 
 class ExpertsProblem:
 
     def predictionFunction(self,value,beta):
-        c = ((1+beta)*Numeric.log(2/(1+beta)))/(2*(1-beta));
-        if Numeric.size(value)==1:
+        c = ((1+beta)*math.log(2/(1+beta)))/(2*(1-beta));
+        if np.size(value)==1:
             if value<=0.5-c:
                 return 0
             elif value<0.5+c and value>0.5-c:
@@ -14,11 +18,11 @@ class ExpertsProblem:
             else:
                 return 1
         else:
-            zeroIndices = Numeric.less(value,0.5-c)
-            oneIndices = Numeric.greater(value,0.5+c)
+            zeroIndices = np.less(value,0.5-c)
+            oneIndices = np.greater(value,0.5+c)
             r = 0.5-((1-2*value)/(4*c))
-            r = Numeric.where(zeroIndices,0.0,r)
-            r = Numeric.where(oneIndices,1.0,r)
+            r = np.where(zeroIndices,0.0,r)
+            r = np.where(oneIndices,1.0,r)
             return r
 
     def updateFunction(self,value,beta):
@@ -33,21 +37,21 @@ class VectorExpertsProblem(ExpertsProblem):
         self.componentwiseCLV = ["Didn\'t run componentwise scalar mixture"]
         self.scalarPredictionMatrix = ["Didn\'t run componentwise scalar mixture"]
         if type(expertsPredictionMatrix)==int:
-            if verbosity>=1: print "Randomizing Vector Experts..."
-            self.expertsPredictionMatrix = MLab.rand(self.totalTime,self.vectorLength,self.noOfExperts)
+            if verbosity>=1: print("Randomizing Vector Experts...")
+            self.expertsPredictionMatrix = np.random.rand(self.totalTime,self.vectorLength,self.noOfExperts)
         else:
             self.expertsPredictionMatrix = expertsPredictionMatrix
         if type(outcomeMatrix)==int:
-            if verbosity>=1: print "Randomizing Vector Outcomes..."
-            self.outcomeMatrix = Numeric.floor(2*MLab.rand(self.vectorLength,self.totalTime))
+            if verbosity>=1: print("Randomizing Vector Outcomes...")
+            self.outcomeMatrix = np.floor(2*np.random.rand(self.vectorLength,self.totalTime))
         else:
             self.outcomeMatrix = outcomeMatrix
         if outcomeAsExpert==1:
-            if verbosity>=1: print "Introducing outcome as expert..."
+            if verbosity>=1: print("Introducing outcome as expert...")
             for t in range(self.totalTime):
                 self.expertsPredictionMatrix[t,:,self.noOfExperts-1]=self.outcomeMatrix[:,t]
         if addNoise==1:
-            if verbosity>=1: print "Adding noise to outcome-expert..."
+            if verbosity>=1: print("Adding noise to outcome-expert...")
             self.addNoise(self.noOfExperts-1,self.totalTime)
 
     def makeHTMLReport(self,filename='report.html'):
@@ -66,7 +70,7 @@ class VectorExpertsProblem(ExpertsProblem):
         # OUTCOME TABLE
         #
         reportFile.writelines(['<hr><h2>Outcomes</h2>'])
-        reportFile.writelines(array2HTML(Numeric.transpose(self.outcomeMatrix),3,'rowtitle','coltitle','Outcome Matrix'))
+        reportFile.writelines(array2HTML(np.transpose(self.outcomeMatrix),3,'rowtitle','coltitle','Outcome Matrix'))
         #
         # PREDICTION TABLE
         #
@@ -113,12 +117,12 @@ class VectorExpertsProblem(ExpertsProblem):
         lossFunction = twoNorm
         ##lossFunction = max
         ##lossFunction = oneNorm
-        expertsLosses = Numeric.zeros(self.noOfExperts,Numeric.Float)
-        expertsCumulativeLossMatrix = Numeric.zeros([self.totalTime,self.noOfExperts],Numeric.Float)
+        expertsLosses = np.zeros(self.noOfExperts)
+        expertsCumulativeLossMatrix = np.zeros([self.totalTime,self.noOfExperts])
         totalLearnerLoss = 0
-        self.learnerCumulativeLossVector = Numeric.zeros(self.totalTime,Numeric.Float)
-        weightVector = Numeric.ones(self.noOfExperts,Numeric.Float)
-        self.predictionMatrix = Numeric.zeros([self.totalTime,self.vectorLength],Numeric.Float)
+        self.learnerCumulativeLossVector = np.zeros(self.totalTime)
+        weightVector = np.ones(self.noOfExperts)
+        self.predictionMatrix = np.zeros([self.totalTime,self.vectorLength])
 
         for t in range(self.totalTime):
             #
@@ -127,18 +131,18 @@ class VectorExpertsProblem(ExpertsProblem):
             expertsPredictionMatrixNow = self.expertsPredictionMatrix[t,:,:]
             outcomeNow = self.outcomeMatrix[:,t]
             normalizedWeightVector = weightVector/sum(weightVector)
-            normalizedWeightVectorMatrix = MLab.repeat(normalizedWeightVector,self.vectorLength)
+            normalizedWeightVectorMatrix = np.repeat(normalizedWeightVector,self.vectorLength)
             normalizedWeightVectorMatrix.shape = (self.noOfExperts,self.vectorLength)
-            normalizedWeightVectorMatrix = Numeric.transpose(normalizedWeightVectorMatrix)
+            normalizedWeightVectorMatrix = np.transpose(normalizedWeightVectorMatrix)
             productNow = expertsPredictionMatrixNow*normalizedWeightVectorMatrix
-            productNow = Numeric.transpose(productNow)
+            productNow = np.transpose(productNow)
             vecrNow = sum(productNow)
             predictionNow = self.predictionFunction(vecrNow,beta)
             self.predictionMatrix[t,:] = predictionNow
             #
             # CALCULATE LEARNER LOSS
             #
-            learnerLossNow = lossFunction(Numeric.absolute(predictionNow-outcomeNow))
+            learnerLossNow = lossFunction(np.absolute(predictionNow-outcomeNow))
             ##      print "predictionNow",predictionNow
             ##      print "outcomeNow",outcomeNow
             ##      print "predictionNow-outcomeNow",predictionNow-outcomeNow
@@ -149,12 +153,12 @@ class VectorExpertsProblem(ExpertsProblem):
             #
             # CALCULATE EXPERT LOSSES
             #
-            outcomeNowMatrix = Numeric.repeat(outcomeNow,self.noOfExperts)
+            outcomeNowMatrix = np.repeat(outcomeNow,self.noOfExperts)
             outcomeNowMatrix.shape = (self.vectorLength,self.noOfExperts)
             expertLossMatrixNow = expertsPredictionMatrixNow - outcomeNowMatrix
-            expertLossNowVector = Numeric.zeros(self.noOfExperts,Numeric.Float)
+            expertLossNowVector = np.zeros(self.noOfExperts)
             for i in range(self.noOfExperts):
-                expertLossNowVector[i] = lossFunction(Numeric.absolute(expertLossMatrixNow[:,i]))
+                expertLossNowVector[i] = lossFunction(np.absolute(expertLossMatrixNow[:,i]))
                 expertsCumulativeLossMatrix[t,i] = expertsCumulativeLossMatrix[t-1,i]+expertLossNowVector[i]
             #
             # UPDATE WEIGHTS
@@ -164,8 +168,8 @@ class VectorExpertsProblem(ExpertsProblem):
         # CALCULATE THEORETICAL UPPER BOUND
         #
         expertsLosses = expertsCumulativeLossMatrix[self.totalTime-1,:]
-        bestExpertLoss = MLab.min(expertsLosses);
-        self.upperbound = (Numeric.log(self.noOfExperts)-bestExpertLoss*Numeric.log(beta))/(2*Numeric.log(2/(1+beta)));   
+        bestExpertLoss = np.min(expertsLosses);
+        self.upperbound = (np.log(self.noOfExperts)-bestExpertLoss*np.log(beta))/(2*np.log(2/(1+beta)));   
 
         return [self.learnerCumulativeLossVector,self.upperbound]
 
@@ -173,12 +177,12 @@ class VectorExpertsProblem(ExpertsProblem):
         
         result = self.mixture(beta)
 
-        self.scalarPredictionMatrix = Numeric.zeros([self.totalTime,self.vectorLength],Numeric.Float)
+        self.scalarPredictionMatrix = np.zeros([self.totalTime,self.vectorLength])
 
-        mixedLossMatrix = Numeric.zeros([self.vectorLength,self.totalTime],Numeric.Float)
+        mixedLossMatrix = np.zeros([self.vectorLength,self.totalTime])
 
         for component in range(self.vectorLength):
-            if verbosity>=1:print "Running scalar algorithm on component",component,"..."
+            if verbosity>=1:print("Running scalar algorithm on component",component,"...")
             
             # This next bit is probably too general, all we need for the 
             # scalar experts for component i are the first noOfExperts-1
@@ -189,7 +193,7 @@ class VectorExpertsProblem(ExpertsProblem):
                 if a not in setOfExperts:
                     setOfExperts.append(a)
                     noOfComponentExperts = len(setOfExperts)
-                    componentExperts = Numeric.zeros([self.totalTime,noOfComponentExperts],Numeric.Float)
+                    componentExperts = np.zeros([self.totalTime,noOfComponentExperts])
                 for i in range(noOfComponentExperts):
                     componentExperts[:,i] = setOfExperts[i]
         
@@ -202,7 +206,7 @@ class VectorExpertsProblem(ExpertsProblem):
             self.scalarPredictionMatrix[:,component] = B.predictionVector[:]
             mixedLossMatrix[component,:] = componentResult[0]       
          
-        self.componentwiseCLV = Numeric.sqrt((sum(mixedLossMatrix**2))/self.vectorLength)    
+        self.componentwiseCLV = np.sqrt((sum(mixedLossMatrix**2))/self.vectorLength)    
 ##        self.componentwiseCLV = Numeric.sqrt((sum(Numeric.absolute(mixedLossMatrix)))/self.vectorLength)    
         self.componentwiseCLV = accumulate(self.componentwiseCLV)
         self.learnerCumulativeLossVector = result[0]
@@ -215,22 +219,22 @@ class ScalarExpertsProblem(ExpertsProblem):
         self.noOfExperts = noOfExperts
         self.totalTime = totalTime
         if type(expertsPredictionMatrix)==int:
-            if verbosity>=3: print "Randomizing scalar experts..."
-            self.expertsPredictionMatrix = MLab.rand(totalTime,self.noOfExperts)
+            if verbosity>=3: print("Randomizing scalar experts...")
+            self.expertsPredictionMatrix = np.random.rand(totalTime,self.noOfExperts)
         else:
-            if verbosity>=3: print "Using given scalar experts..." 
+            if verbosity>=3: print("Using given scalar experts...")
             self.expertsPredictionMatrix = expertsPredictionMatrix
         if type(outcomeVector)==int:
-            if verbosity>=3: print "Randomizing scalar outcomes..."
-            self.outcomeVector = Numeric.floor(2*MLab.rand(totalTime))
+            if verbosity>=3: print("Randomizing scalar outcomes...")
+            self.outcomeVector = np.floor(2*np.random.rand(totalTime))
         else:
-            if verbosity>=3: print "Using given scalar outcomes..."
+            if verbosity>=3: print("Using given scalar outcomes...")
             self.outcomeVector = outcomeVector
         if outcomeAsExpert==1:
-            if verbosity>=3: print "Introducing scalar outcomes as scalar expert..."
+            if verbosity>=3: print("Introducing scalar outcomes as scalar expert...")
             self.expertsPredictionMatrix[:,self.noOfExperts-1]=self.outcomeVector
         if addNoise==1:
-            if verbosity>=3: print "Adding noise to outcome-expert..."
+            if verbosity>=3: print("Adding noise to outcome-expert...")
             for t in range(totalTime):
                 a = random.gauss(0,0.01)
                 if 0<=a+self.expertsPredictionMatrix[t,self.noOfExperts-1]<=1:
@@ -238,13 +242,13 @@ class ScalarExpertsProblem(ExpertsProblem):
 
     def mixture(self,beta):
 
-        lossFunction = Numeric.fabs
-        expertsTotalLossVector = Numeric.zeros(self.noOfExperts,Numeric.Float)
+        lossFunction = np.fabs
+        expertsTotalLossVector = np.zeros(self.noOfExperts)
         totalLearnerLoss = 0
-        self.learnerLossVector = Numeric.zeros(self.totalTime,Numeric.Float)
-        self.learnerCumulativeLossVector = Numeric.zeros(self.totalTime,Numeric.Float)
-        weightVector = Numeric.ones(self.noOfExperts,Numeric.Float)
-        self.predictionVector = Numeric.zeros(self.totalTime,Numeric.Float)
+        self.learnerLossVector = np.zeros(self.totalTime)
+        self.learnerCumulativeLossVector = np.zeros(self.totalTime)
+        weightVector = np.ones(self.noOfExperts)
+        self.predictionVector = np.zeros(self.totalTime)
         
         for t in range(self.totalTime):
             #
@@ -271,8 +275,8 @@ class ScalarExpertsProblem(ExpertsProblem):
             updateVector = self.updateFunction(expertsLossNowVector,beta)
             weightVector = weightVector*updateVector
             
-        bestExpertLoss = MLab.min(expertsTotalLossVector)
-        self.upperbound = (Numeric.log(self.noOfExperts)-bestExpertLoss*Numeric.log(beta))/(2*Numeric.log(2/(1+beta)));
+        bestExpertLoss = np.min(expertsTotalLossVector)
+        self.upperbound = (math.log(self.noOfExperts)-bestExpertLoss*math.log(beta))/(2*math.log(2/(1+beta)));
         return [self.learnerLossVector,self.learnerCumulativeLossVector,self.upperbound]
 
     def makeHTMLReport(self,filename='report.html'):

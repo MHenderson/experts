@@ -1,12 +1,13 @@
-import Numeric, copy, Image, MLab
+import copy
+import numpy as np
 
 def twoNorm(vector):
     length = vector.shape[0]
-    return Numeric.sqrt(sum(vector**2)/length)
+    return np.sqrt(sum(vector**2)/length)
 
 def oneNorm(vector):
     length = vector.shape[0]
-    return Numeric.sqrt(sum(vector**1)/length)
+    return np.sqrt(sum(vector**1)/length)
 
 def accumulate(vector):
     result = copy.deepcopy(vector)
@@ -21,7 +22,7 @@ def digit(x,base,i):
     return int((x/(base**i))%base)
     
 def array2HTML(array,precision=3,rowTitle='',colTitle='',caption=''):
-    shape = Numeric.shape(array)
+    shape = np.shape(array)
     x = shape[0]
     y = shape[1]
     result = []
@@ -45,13 +46,13 @@ def array2HTML(array,precision=3,rowTitle='',colTitle='',caption=''):
 #
 def imagesc(array):
     array2 = array[:]
-    dimensions = Numeric.shape(array2)
+    dimensions = np.shape(array2)
     x = dimensions[0]
     y = dimensions[1]
     array2.shape = (1,x*y)
     sequence = array2[0]
     im = Image.new('L',[x,y])
    # a = MLab.rand(100*100)
-    z = Numeric.floor(255*sequence)
+    z = np.floor(255*sequence)
     im.putdata(z)
     return im

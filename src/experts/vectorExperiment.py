@@ -1,7 +1,4 @@
-import Gnuplot, Numeric, Experts, MLab
-from imagesc import imagesc
-
-g = Gnuplot.Gnuplot(persist=1)
+import Experts
 
 vectorLength = 15
 noOfExperts = 20
