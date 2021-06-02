@@ -65,8 +65,6 @@ class VectorExpertsProblem(ExpertsProblem):
     def mixture(self,beta):
 
         lossFunction = twoNorm
-        ##lossFunction = max
-        ##lossFunction = oneNorm
         expertsLosses = np.zeros(self.noOfExperts)
         expertsCumulativeLossMatrix = np.zeros([self.totalTime,self.noOfExperts])
         totalLearnerLoss = 0
@@ -75,9 +73,8 @@ class VectorExpertsProblem(ExpertsProblem):
         self.predictionMatrix = np.zeros([self.totalTime,self.vectorLength])
 
         for t in range(self.totalTime):
-            #
+
             # COMPUTE PREDICTION
-            #
             expertsPredictionMatrixNow = self.expertsPredictionMatrix[t,:,:]
             outcomeNow = self.outcomeMatrix[:,t]
             normalizedWeightVector = weightVector/sum(weightVector)
@@ -89,20 +86,13 @@ class VectorExpertsProblem(ExpertsProblem):
             vecrNow = sum(productNow)
             predictionNow = self.predictionFunction(vecrNow,beta)
             self.predictionMatrix[t,:] = predictionNow
-            #
+            
             # CALCULATE LEARNER LOSS
-            #
             learnerLossNow = lossFunction(np.absolute(predictionNow-outcomeNow))
-            ##      print "predictionNow",predictionNow
-            ##      print "outcomeNow",outcomeNow
-            ##      print "predictionNow-outcomeNow",predictionNow-outcomeNow
-            ##      print "learnerLossNow",learnerLossNow
             totalLearnerLoss = totalLearnerLoss + learnerLossNow
-            ##      print "totalLearnerLoss",totalLearnerLoss
             self.learnerCumulativeLossVector[t] = totalLearnerLoss
-            #
+            
             # CALCULATE EXPERT LOSSES
-            #
             outcomeNowMatrix = np.repeat(outcomeNow,self.noOfExperts)
             outcomeNowMatrix.shape = (self.vectorLength,self.noOfExperts)
             expertLossMatrixNow = expertsPredictionMatrixNow - outcomeNowMatrix
@@ -110,13 +100,11 @@ class VectorExpertsProblem(ExpertsProblem):
             for i in range(self.noOfExperts):
                 expertLossNowVector[i] = lossFunction(np.absolute(expertLossMatrixNow[:,i]))
                 expertsCumulativeLossMatrix[t,i] = expertsCumulativeLossMatrix[t-1,i]+expertLossNowVector[i]
-            #
+            
             # UPDATE WEIGHTS
-            #
             weightVector = weightVector*self.updateFunction(expertLossNowVector,beta)
-        #
+        
         # CALCULATE THEORETICAL UPPER BOUND
-        #
         expertsLosses = expertsCumulativeLossMatrix[self.totalTime-1,:]
         bestExpertLoss = np.min(expertsLosses);
         self.upperbound = (np.log(self.noOfExperts)-bestExpertLoss*np.log(beta))/(2*np.log(2/(1+beta)));   
@@ -134,9 +122,6 @@ class VectorExpertsProblem(ExpertsProblem):
         for component in range(self.vectorLength):
             if verbosity>=1:print("Running scalar algorithm on component",component,"...")
             
-            # This next bit is probably too general, all we need for the 
-            # scalar experts for component i are the first noOfExperts-1
-            # experts predictions on component i
             setOfExperts = []
             for expert in range(self.noOfExperts):
                 a = self.expertsPredictionMatrix[:,component,expert]
@@ -147,9 +132,6 @@ class VectorExpertsProblem(ExpertsProblem):
                 #for i in range(noOfComponentExperts):
                 #    componentExperts[:,i] = setOfExperts[i]
         
-            # Originally I had the following line rather than the previous
-            # nine; this allowed for repeated experts
-            ##componentExperts = self.expertsPredictionMatrix[:,component,:]
             componentOutcomes = self.outcomeMatrix[component,:]
             #B = ScalarExpertsProblem(noOfComponentExperts,self.totalTime,componentExperts,componentOutcomes,0,0,verbosity)
             #componentResult = B.mixture(beta)
@@ -157,7 +139,6 @@ class VectorExpertsProblem(ExpertsProblem):
             #mixedLossMatrix[component,:] = componentResult[0]       
          
         self.componentwiseCLV = np.sqrt((sum(mixedLossMatrix**2))/self.vectorLength)    
-##        self.componentwiseCLV = Numeric.sqrt((sum(Numeric.absolute(mixedLossMatrix)))/self.vectorLength)    
         self.componentwiseCLV = accumulate(self.componentwiseCLV)
         self.learnerCumulativeLossVector = result[0]
 
@@ -201,27 +182,24 @@ class ScalarExpertsProblem(ExpertsProblem):
         self.predictionVector = np.zeros(self.totalTime)
         
         for t in range(self.totalTime):
-            #
+            
             # COMPUTE PREDICTION
-            #
             expertsPredictionNowVector = self.expertsPredictionMatrix[t,:]
             outcomeNow = self.outcomeVector[t]
             normalizedWeightVector = weightVector/sum(weightVector)
             r = sum(normalizedWeightVector*expertsPredictionNowVector)
             predictionNow = self.predictionFunction(r,beta)
             self.predictionVector[t] = predictionNow
-            #
+            
             # CALCULATE LOSSES
-            #
             lossNow = lossFunction(predictionNow-outcomeNow)
             self.learnerLossVector[t] = lossNow
             totalLearnerLoss = totalLearnerLoss+lossFunction(predictionNow-outcomeNow)
             self.learnerCumulativeLossVector[t]=totalLearnerLoss
             expertsLossNowVector = lossFunction(expertsPredictionNowVector-outcomeNow)
             expertsTotalLossVector = expertsTotalLossVector + expertsLossNowVector
-            #
+            
             # UPDATE STEP
-            #
             updateVector = self.updateFunction(expertsLossNowVector,beta)
             weightVector = weightVector*updateVector
             
