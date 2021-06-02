@@ -15,7 +15,7 @@ class ScalarExpertsProblem():
         self.expertsPredictionMatrix = expertsPredictionMatrix
         self.outcomeVector = outcomeVector
 
-    def predictionFunction(self,value,beta):
+    def predictionFunction(self, value, beta):
         c = ((1 + beta) * math.log(2 / (1 + beta))) / (2 * (1 - beta))
         if value <= 0.5 - c:
             return 0
@@ -27,7 +27,7 @@ class ScalarExpertsProblem():
     def updateFunction(self,value,beta):
         return 1 - (1 - beta) * value
 
-    def predict(self, experts_, outcomes, weights, beta):
+    def predict(self, experts_, weights, beta):
         normalized_weights = weights/sum(weights)
         r = sum(normalized_weights * experts_)
         return(self.predictionFunction(r, beta))
@@ -35,35 +35,31 @@ class ScalarExpertsProblem():
     def mixture(self, beta):
 
         lossFunction = np.fabs
-        expertsTotalLossVector = np.zeros(self.noOfExperts)
-        totalLearnerLoss = 0
-        self.learnerLossVector = np.zeros(self.totalTime)
-        self.learnerCumulativeLossVector = np.zeros(self.totalTime)
+        expertsLossMatrix = np.zeros((self.totalTime, self.noOfExperts))
+        learnerLossVector = np.zeros(self.totalTime)
         weightVector = np.ones(self.noOfExperts)
-        self.predictionVector = np.zeros(self.totalTime)
+        predictionVector = np.zeros(self.totalTime)
         
         for t in range(self.totalTime):
             
             outcomeNow = self.outcomeVector[t]
             expertsPredictionNowVector = self.expertsPredictionMatrix[t,:]
-            predictionNow = self.predict(expertsPredictionNowVector, outcomeNow, weightVector, beta)
+            predictionNow = self.predict(expertsPredictionNowVector, weightVector, beta)
 
             # COMPUTE PREDICTION
-            self.predictionVector[t] = predictionNow
+            predictionVector[t] = predictionNow
             
             # CALCULATE LEARNER LOSS
             lossNow = lossFunction(predictionNow - outcomeNow)
-            self.learnerLossVector[t] = lossNow
+            learnerLossVector[t] = lossNow
 
             # CALCULATE EXPERT LOSS
-            expertsLossNowVector = lossFunction(expertsPredictionNowVector - outcomeNow)
+            expertsLossNow = lossFunction(expertsPredictionNowVector - outcomeNow)
+            expertsLossMatrix[t, :] = expertsLossNow
             
             # UPDATE STEP
-            # self.update
-            updateVector = self.updateFunction(expertsLossNowVector, beta)
+            updateVector = self.updateFunction(expertsLossNow, beta)
             weightVector = weightVector * updateVector
 
-        bestExpertLoss = np.min(expertsTotalLossVector)
-        self.upperbound = (math.log(self.noOfExperts) - bestExpertLoss * math.log(beta)) / (2 * math.log(2 / (1 + beta)))
-
-        return {"loss": self.learnerLossVector, "bound": self.upperbound}
+        return {"learner-loss": learnerLossVector,
+                "expert-loss": expertsLossMatrix}
