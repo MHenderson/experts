@@ -177,20 +177,19 @@ class ScalarExpertsProblem(ExpertsProblem):
             # COMPUTE PREDICTION
             self.predictionVector[t] = predictionNow
             
-            # CALCULATE LOSSES
-            # self.loss
-            lossNow = lossFunction(predictionNow-outcomeNow)
+            # CALCULATE LEARNER LOSS
+            lossNow = lossFunction(predictionNow - outcomeNow)
             self.learnerLossVector[t] = lossNow
-            totalLearnerLoss = totalLearnerLoss+lossFunction(predictionNow-outcomeNow)
-            self.learnerCumulativeLossVector[t]=totalLearnerLoss
-            expertsLossNowVector = lossFunction(expertsPredictionNowVector-outcomeNow)
-            expertsTotalLossVector = expertsTotalLossVector + expertsLossNowVector
+
+            # CALCULATE EXPERT LOSS
+            expertsLossNowVector = lossFunction(expertsPredictionNowVector - outcomeNow)
             
             # UPDATE STEP
             # self.update
-            updateVector = self.updateFunction(expertsLossNowVector,beta)
-            weightVector = weightVector*updateVector
-            
+            updateVector = self.updateFunction(expertsLossNowVector, beta)
+            weightVector = weightVector * updateVector
+
         bestExpertLoss = np.min(expertsTotalLossVector)
-        self.upperbound = (math.log(self.noOfExperts)-bestExpertLoss*math.log(beta))/(2*math.log(2/(1+beta)));
-        return [self.learnerLossVector,self.learnerCumulativeLossVector,self.upperbound]
+        self.upperbound = (math.log(self.noOfExperts) - bestExpertLoss * math.log(beta)) / (2 * math.log(2 / (1 + beta)))
+
+        return {"loss": self.learnerLossVector, "bound": self.upperbound}
