@@ -41,9 +41,6 @@ def array2HTML(array,precision=3,rowTitle='',colTitle='',caption=''):
     result = result + ['</table>']
     return result
     
-#
-# returns grayscale image of array argument
-#
 def imagesc(array):
     array2 = array[:]
     dimensions = np.shape(array2)
@@ -52,7 +49,6 @@ def imagesc(array):
     array2.shape = (1,x*y)
     sequence = array2[0]
     im = Image.new('L',[x,y])
-   # a = MLab.rand(100*100)
     z = np.floor(255*sequence)
     im.putdata(z)
     return im
