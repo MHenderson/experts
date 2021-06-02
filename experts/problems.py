@@ -1,9 +1,11 @@
+from experts.utils import twoNorm
+from experts.utils import array2HTML
+
 import math
 import numpy as np
 import mlab
 
 import random
-## import Gnuplot
 
 class ExpertsProblem:
 
