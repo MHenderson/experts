@@ -8,12 +8,20 @@ import random
 
 class ScalarExpertsProblem():
 
-    def __init__(self, noOfExperts, totalTime, expertsPredictionMatrix, outcomeVector):
+    def __init__(self, expertsPredictionMatrix, outcomeVector, lossFunction = np.fabs):
 
-        self.noOfExperts = noOfExperts
-        self.totalTime = totalTime
+        self.noOfExperts = expertsPredictionMatrix.shape[1]
+        self.totalTime = expertsPredictionMatrix.shape[0]
         self.expertsPredictionMatrix = expertsPredictionMatrix
         self.outcomeVector = outcomeVector
+
+        self.lossFunction = lossFunction
+
+        self.weightVector = np.ones(self.noOfExperts)
+        self.predictionVector = np.zeros(self.totalTime)
+
+        self.expertsLossMatrix = np.zeros((self.totalTime, self.noOfExperts))
+        self.learnerLossVector = np.zeros(self.totalTime)
 
     def predictionFunction(self, value, beta):
         c = ((1 + beta) * math.log(2 / (1 + beta))) / (2 * (1 - beta))
@@ -27,39 +35,30 @@ class ScalarExpertsProblem():
     def updateFunction(self,value,beta):
         return 1 - (1 - beta) * value
 
-    def predict(self, experts_, weights, beta):
+    def predict(self, experts_, weights, predictionFunction, beta):
         normalized_weights = weights/sum(weights)
         r = sum(normalized_weights * experts_)
-        return(self.predictionFunction(r, beta))
+        return(predictionFunction(r, beta))
 
     def mixture(self, beta):
 
-        lossFunction = np.fabs
-        expertsLossMatrix = np.zeros((self.totalTime, self.noOfExperts))
-        learnerLossVector = np.zeros(self.totalTime)
-        weightVector = np.ones(self.noOfExperts)
-        predictionVector = np.zeros(self.totalTime)
-        
         for t in range(self.totalTime):
             
             outcomeNow = self.outcomeVector[t]
             expertsPredictionNowVector = self.expertsPredictionMatrix[t,:]
-            predictionNow = self.predict(expertsPredictionNowVector, weightVector, beta)
+            predictionNow = self.predict(expertsPredictionNowVector, self.weightVector, self.predictionFunction, beta)
 
-            # COMPUTE PREDICTION
-            predictionVector[t] = predictionNow
+            # update predictions
+            self.predictionVector[t] = predictionNow
             
-            # CALCULATE LEARNER LOSS
-            lossNow = lossFunction(predictionNow - outcomeNow)
-            learnerLossVector[t] = lossNow
+            # update learner loss
+            lossNow = self.lossFunction(predictionNow - outcomeNow)
+            self.learnerLossVector[t] = lossNow
 
-            # CALCULATE EXPERT LOSS
-            expertsLossNow = lossFunction(expertsPredictionNowVector - outcomeNow)
-            expertsLossMatrix[t, :] = expertsLossNow
+            # update experts loss
+            expertsLossNow = self.lossFunction(expertsPredictionNowVector - outcomeNow)
+            self.expertsLossMatrix[t, :] = expertsLossNow
             
-            # UPDATE STEP
+            # update weights
             updateVector = self.updateFunction(expertsLossNow, beta)
-            weightVector = weightVector * updateVector
-
-        return {"learner-loss": learnerLossVector,
-                "expert-loss": expertsLossMatrix}
+            self.weightVector = self.weightVector * updateVector
