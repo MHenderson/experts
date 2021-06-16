@@ -5,14 +5,12 @@ from experts.utils import twoNorm
 
 class ScalarExpertsProblem():
 
-    def __init__(self, expertsPredictionMatrix, outcomeVector, lossFunction = np.fabs):
+    def __init__(self, expertsPredictionMatrix, outcomeVector):
 
         self.noOfExperts = expertsPredictionMatrix.shape[0]
         self.totalTime = expertsPredictionMatrix.shape[1]
         self.expertsPredictionMatrix = expertsPredictionMatrix
         self.outcomeVector = outcomeVector
-
-        self.lossFunction = lossFunction
 
         self.weightVector = np.ones(self.noOfExperts)
         self.predictionVector = np.zeros(self.totalTime)
@@ -37,7 +35,7 @@ class ScalarExpertsProblem():
         r = sum(normalized_weights * experts_)
         return(predictionFunction(r, beta))
 
-    def mixture(self, beta):
+    def mixture(self, beta, lossFunction = np.fabs):
 
         for t in range(self.totalTime):
             
@@ -49,11 +47,11 @@ class ScalarExpertsProblem():
             self.predictionVector[t] = predictionNow
             
             # update learner loss
-            lossNow = self.lossFunction(predictionNow - outcomeNow)
+            lossNow = lossFunction(predictionNow - outcomeNow)
             self.learnerLossVector[t] = lossNow
 
             # update experts loss
-            expertsLossNow = self.lossFunction(expertsPredictionNowVector - outcomeNow)
+            expertsLossNow = lossFunction(expertsPredictionNowVector - outcomeNow)
             self.expertsLossMatrix[:, t] = expertsLossNow
             
             # update weights
