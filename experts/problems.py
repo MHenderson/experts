@@ -73,7 +73,7 @@ class VectorExpertsProblem():
         self.predictionMatrix = np.zeros([self.totalTime, self.vectorLength])
 
         self.expertsLosses = np.zeros(self.noOfExperts)
-        self.expertsLossMatrix = np.zeros([self.totalTime, self.noOfExperts])
+        self.expertsLossMatrix = np.zeros([self.noOfExperts, self.totalTime])
 
         self.weightVector = np.ones(self.noOfExperts)
 
@@ -118,7 +118,7 @@ class VectorExpertsProblem():
             expertLossNowVector = np.zeros(self.noOfExperts)
             for i in range(self.noOfExperts):
                 expertLossNowVector[i] = lossFunction(np.absolute(expertLossMatrixNow[:, i]))
-                self.expertsLossMatrix[t, i] = expertLossNowVector[i]
+                self.expertsLossMatrix[i, t] = expertLossNowVector[i]
 
             # update weights
             self.weightVector = self.weightVector * self.updateFunction(expertLossNowVector, beta)
