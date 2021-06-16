@@ -1,2 +1,0 @@
-import Image, MLab, Numeric
-
