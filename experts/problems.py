@@ -71,11 +71,11 @@ class VectorExpertsProblem():
         self.totalTime = expertsPredictionMatrix.shape[1]
         self.vectorLength = expertsPredictionMatrix.shape[2]
 
-        self.learnerCumulativeLossVector = np.zeros(self.totalTime)
+        self.learnerLossVector = np.zeros(self.totalTime)
         self.predictionMatrix = np.zeros([self.totalTime, self.vectorLength])
 
         self.expertsLosses = np.zeros(self.noOfExperts)
-        self.expertsCumulativeLossMatrix = np.zeros([self.totalTime, self.noOfExperts])
+        self.expertsLossMatrix = np.zeros([self.totalTime, self.noOfExperts])
 
         self.weightVector = np.ones(self.noOfExperts)
 
@@ -99,10 +99,7 @@ class VectorExpertsProblem():
         vecrNow = sum(productNow)
         return(self.predictionFunction(vecrNow, beta))
 
-    def mixture(self, beta):
-
-        lossFunction = twoNorm
-        totalLearnerLoss = 0
+    def mixture(self, beta, lossFunction = twoNorm):
 
         for t in range(self.totalTime):
 
@@ -114,8 +111,7 @@ class VectorExpertsProblem():
             # update learner loss
             outcomeNow = self.outcomeMatrix[t, :]
             learnerLossNow = lossFunction(np.absolute(predictionNow - outcomeNow))
-            totalLearnerLoss = totalLearnerLoss + learnerLossNow
-            self.learnerCumulativeLossVector[t] = totalLearnerLoss
+            self.learnerLossVector[t] = learnerLossNow
 
             # update expert losses
             outcomeNowMatrix = np.repeat(outcomeNow, self.noOfExperts)
@@ -124,7 +120,7 @@ class VectorExpertsProblem():
             expertLossNowVector = np.zeros(self.noOfExperts)
             for i in range(self.noOfExperts):
                 expertLossNowVector[i] = lossFunction(np.absolute(expertLossMatrixNow[:, i]))
-                self.expertsCumulativeLossMatrix[t, i] = self.expertsCumulativeLossMatrix[t - 1, i] + expertLossNowVector[i]
+                self.expertsLossMatrix[t, i] = expertLossNowVector[i]
 
             # update weights
             self.weightVector = self.weightVector * self.updateFunction(expertLossNowVector, beta)
