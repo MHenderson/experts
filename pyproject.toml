@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "experts"
+version = "0.1.0"
+description = "Mixture of experts."
+authors = ["Matthew Henderson <matthew.james.henderson@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^2.1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
