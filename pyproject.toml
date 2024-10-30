@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "experts"
-version = "0.1.0"
+version = "0.1.1"
 description = "Mixture of experts."
 authors = ["Matthew Henderson <matthew.james.henderson@gmail.com>"]
 license = "MIT"

@@ -1,5 +1,9 @@
 # experts (development version)
 
+# experts (v0.1.1)
+
+* Add support for Python 3.10.
+
 # experts (v0.1.0)
 
 * ScalarExpertsProblem for scalar outcomes.
