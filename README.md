@@ -1,5 +1,8 @@
+[![PyPI version](https://badge.fury.io/py/experts.svg)](https://badge.fury.io/py/experts)
+![python package](https://github.com/MHenderson/experts/actions/workflows/python-package.yml/badge.svg)
+![python publish](https://github.com/MHenderson/experts/actions/workflows/python-publish.yml/badge.svg)
+
 # experts
 
-Code from the paper:
-[Mixture of Vector Experts](https://link.springer.com/chapter/10.1007/11564089_30) by Henderson, Shawe-Taylor and Žerovnik
+Mixture of experts in Python.
 
